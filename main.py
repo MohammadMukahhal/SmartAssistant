@@ -20,7 +20,7 @@ if prompt := st.chat_input():
     
     #Process the prompt using BERT
     searchQuery = CleanQuestion(prompt)
-    context = "In recent years, deep learning has gained immense popularity in the field of artificial intelligence. One of the pivotal developments in this domain was the introduction of transformer-based models like BERT (Bidirectional Encoder Representations from Transformers). These models have demonstrated exceptional performance across various natural language processing tasks, including text classification, named entity recognition, question answering, and more."
+    context = "Bill Gates is the richest man in the world"
     #Process the prompt using BERT
     response = processNLP(prompt,context)
 

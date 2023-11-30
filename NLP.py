@@ -10,8 +10,8 @@ def processNLP(question:str, context:str):
     tokenizer = BertTokenizer.from_pretrained(weight_path)
     model = BertForQuestionAnswering.from_pretrained(weight_path)
 
-    question = "What is one of the significant contributions to the field of artificial intelligence in recent years?"
-    context = "In recent years, deep learning has gained immense popularity in the field of artificial intelligence. One of the pivotal developments in this domain was the introduction of transformer-based models like BERT (Bidirectional Encoder Representations from Transformers). These models have demonstrated exceptional performance across various natural language processing tasks, including text classification, named entity recognition, question answering, and more."
+    #question = "What is one of the significant contributions to the field of artificial intelligence in recent years?"
+    #context = "In recent years, deep learning has gained immense popularity in the field of artificial intelligence. One of the pivotal developments in this domain was the introduction of transformer-based models like BERT (Bidirectional Encoder Representations from Transformers). These models have demonstrated exceptional performance across various natural language processing tasks, including text classification, named entity recognition, question answering, and more."
 
     input_ids = tokenizer.encode(question, context)
 
