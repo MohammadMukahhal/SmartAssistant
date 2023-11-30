@@ -1,4 +1,6 @@
 import streamlit as st
+from support import CleanQuestion
+from NLP import processNLP
 
 
 with st.sidebar:
@@ -15,7 +17,13 @@ for msg in st.session_state["messages"]:
 if prompt := st.chat_input():
     st.session_state["messages"].append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
-    response = "Placeholder for bert response"
+    
+    #Process the prompt using BERT
+    searchQuery = CleanQuestion(prompt)
+    context = "In recent years, deep learning has gained immense popularity in the field of artificial intelligence. One of the pivotal developments in this domain was the introduction of transformer-based models like BERT (Bidirectional Encoder Representations from Transformers). These models have demonstrated exceptional performance across various natural language processing tasks, including text classification, named entity recognition, question answering, and more."
+    #Process the prompt using BERT
+    response = processNLP(prompt,context)
+
     st.session_state["messages"].append({"role": "assistant", "content": response})
     st.chat_message("assistant").write(response)
 

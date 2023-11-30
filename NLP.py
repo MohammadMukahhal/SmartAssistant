@@ -3,38 +3,41 @@ from transformers import BertForQuestionAnswering, BertTokenizer
 import warnings
 warnings.simplefilter("ignore")
 
-weight_path = "bert-large-uncased-whole-word-masking-finetuned-squad"
+def processNLP(question:str, context:str):
 
-tokenizer = BertTokenizer.from_pretrained(weight_path)
-model = BertForQuestionAnswering.from_pretrained(weight_path)
+    weight_path = "bert-large-uncased-whole-word-masking-finetuned-squad"
 
-question = "What is one of the significant contributions to the field of artificial intelligence in recent years?"
-context = "In recent years, deep learning has gained immense popularity in the field of artificial intelligence. One of the pivotal developments in this domain was the introduction of transformer-based models like BERT (Bidirectional Encoder Representations from Transformers). These models have demonstrated exceptional performance across various natural language processing tasks, including text classification, named entity recognition, question answering, and more."
+    tokenizer = BertTokenizer.from_pretrained(weight_path)
+    model = BertForQuestionAnswering.from_pretrained(weight_path)
 
-input_ids = tokenizer.encode(question, context)
+    question = "What is one of the significant contributions to the field of artificial intelligence in recent years?"
+    context = "In recent years, deep learning has gained immense popularity in the field of artificial intelligence. One of the pivotal developments in this domain was the introduction of transformer-based models like BERT (Bidirectional Encoder Representations from Transformers). These models have demonstrated exceptional performance across various natural language processing tasks, including text classification, named entity recognition, question answering, and more."
 
-tokens = tokenizer.convert_ids_to_tokens(input_ids)
+    input_ids = tokenizer.encode(question, context)
 
-sep_idx = tokens.index('[SEP]')
+    tokens = tokenizer.convert_ids_to_tokens(input_ids)
 
-token_type_ids = [0 for i in range(sep_idx+1)] + [1 for i in range(sep_idx+1,len(tokens))]
+    sep_idx = tokens.index('[SEP]')
 
-out = model(torch.tensor([input_ids]), 
-                token_type_ids=torch.tensor([token_type_ids]))
+    token_type_ids = [0 for i in range(sep_idx+1)] + [1 for i in range(sep_idx+1,len(tokens))]
 
-start_logits, end_logits = out['start_logits'], out['end_logits']
+    out = model(torch.tensor([input_ids]), 
+                    token_type_ids=torch.tensor([token_type_ids]))
 
-max_answer_len = 5  # Change this value to control the number of words in the answer
+    start_logits, end_logits = out['start_logits'], out['end_logits']
 
-answer_start = torch.argmax(start_logits)
-answer_end = torch.argmax(end_logits)
+    max_answer_len = 5  # Change this value to control the number of words in the answer
 
-# Generating a longer answer by considering a range around the max probabilities
-start_idx = max(0, answer_start - max_answer_len // 2)
-end_idx = min(len(tokens), answer_end + max_answer_len // 2)
+    answer_start = torch.argmax(start_logits)
+    answer_end = torch.argmax(end_logits)
 
-ans = ' '.join(tokens[start_idx:end_idx])
-print('Predicted answer:', ans)
+    # Generating a longer answer by considering a range around the max probabilities
+    start_idx = max(0, answer_start - max_answer_len // 2)
+    end_idx = min(len(tokens), answer_end + max_answer_len // 2)
 
-del model
-del tokenizer
+    ans = ' '.join(tokens[start_idx:end_idx])
+    print('Predicted answer:', ans)
+    return ans
+
+    #del model
+    #del tokenizer
