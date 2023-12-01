@@ -5,39 +5,34 @@ warnings.simplefilter("ignore")
 
 def processNLP(question:str, context:str):
 
-    weight_path = "bert-large-uncased-whole-word-masking-finetuned-squad"
-
-    tokenizer = BertTokenizer.from_pretrained(weight_path)
-    model = BertForQuestionAnswering.from_pretrained(weight_path)
-
-    #question = "What is one of the significant contributions to the field of artificial intelligence in recent years?"
-    #context = "In recent years, deep learning has gained immense popularity in the field of artificial intelligence. One of the pivotal developments in this domain was the introduction of transformer-based models like BERT (Bidirectional Encoder Representations from Transformers). These models have demonstrated exceptional performance across various natural language processing tasks, including text classification, named entity recognition, question answering, and more."
-
+    model = BertForQuestionAnswering.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
+    tokenizer = BertTokenizer.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
+    
     input_ids = tokenizer.encode(question, context)
-
+    print("The input has a total of {} tokens.".format(len(input_ids)))
     tokens = tokenizer.convert_ids_to_tokens(input_ids)
-
-    sep_idx = tokens.index('[SEP]')
-
-    token_type_ids = [0 for i in range(sep_idx+1)] + [1 for i in range(sep_idx+1,len(tokens))]
-
-    out = model(torch.tensor([input_ids]), 
-                    token_type_ids=torch.tensor([token_type_ids]))
-
-    start_logits, end_logits = out['start_logits'], out['end_logits']
-
-    max_answer_len = 5  # Change this value to control the number of words in the answer
-
-    answer_start = torch.argmax(start_logits)
-    answer_end = torch.argmax(end_logits)
-
-    # Generating a longer answer by considering a range around the max probabilities
-    start_idx = max(0, answer_start - max_answer_len // 2)
-    end_idx = min(len(tokens), answer_end + max_answer_len // 2)
-
-    ans = ' '.join(tokens[start_idx:end_idx])
-    print('Predicted answer:', ans)
-    return ans
+        
+    sep_idx = input_ids.index(tokenizer.sep_token_id)
+    num_seg_a = sep_idx+1
+    num_seg_b = len(input_ids) - num_seg_a
+    segment_ids = [0]*num_seg_a + [1]*num_seg_b#making sure that every input token has a segment id
+    assert len(segment_ids) == len(input_ids)
+    
+    
+    #token input_ids to represent the input and token segment_ids to differentiate our segments - question and text
+    output = model(torch.tensor([input_ids]),  token_type_ids=torch.tensor([segment_ids]))
+    
+    #tokens with highest start and end scores
+    answer_start = torch.argmax(output.start_logits)
+    answer_end = torch.argmax(output.end_logits)
+    if answer_end >= answer_start:
+        answer = " ".join(tokens[answer_start:answer_end+1])
+    else:
+        print("I am unable to find the answer to this question. Can you please ask another question?")
+        
+    print("\nQuestion:\n{}".format(question.capitalize()))
+    print("\nAnswer:\n{}.".format(answer.capitalize()))
+    return answer
 
     #del model
     #del tokenizer
