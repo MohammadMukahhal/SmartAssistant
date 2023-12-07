@@ -1,0 +1,68 @@
+import torch
+from transformers import BertForQuestionAnswering, BertTokenizer
+import warnings
+import nltk
+from nltk.corpus import stopwords
+
+warnings.simplefilter("ignore")
+nltk.download('stopwords')
+
+# Function to clean the question and generate a search query
+def clean_question(question:str):
+    stop_words = set(stopwords.words('english'))
+    additional_excluded_words = {'?', 'years?'} 
+    excluded_words = stop_words.union(additional_excluded_words)
+    keywords = question.split()
+    keywords = [word for word in keywords if word.lower() not in excluded_words]
+    search_query = ' '.join(keywords)
+    print("SEARCHED FOR: ", search_query)
+    return search_query
+
+def fetch_wikipedia_summary(query: str):
+    page = wiki_wiki.page(query)
+    if page.exists():
+        return page.summary
+    else:
+        return "No Wikipedia page found for this query."
+
+def processNLP(question:str):
+    model = BertForQuestionAnswering.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
+    tokenizer = BertTokenizer.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
+    
+    input_ids = tokenizer.encode(question)
+    print("The input has a total of {} tokens.".format(len(input_ids)))
+    tokens = tokenizer.convert_ids_to_tokens(input_ids)
+        
+    sep_idx = input_ids.index(tokenizer.sep_token_id)
+    num_seg_a = sep_idx+1
+    num_seg_b = len(input_ids) - num_seg_a
+    segment_ids = [0]*num_seg_a + [1]*num_seg_b
+    assert len(segment_ids) == len(input_ids)
+    
+    output = model(torch.tensor([input_ids]),  token_type_ids=torch.tensor([segment_ids]))
+    
+    answer_start = torch.argmax(output.start_logits)
+    answer_end = torch.argmax(output.end_logits)
+    if answer_end >= answer_start:
+        answer = " ".join(tokens[answer_start:answer_end+1])
+    else:
+        print("I am unable to find the answer to this question. Can you please ask another question?")
+        
+    print("\nQuestion:\n{}".format(question.capitalize()))
+    #print("\nContext:\n{}".format(context.capitalize()))
+    
+    # Clean the question and generate a search query
+    search_query = clean_question(question)
+    
+    # Fetch Wikipedia summary based on the search query
+    wikipedia_summary = fetch_wikipedia_summary(search_query)
+    print("\nWikipedia Summary:\n{}".format(wikipedia_summary))
+    
+    return wikipedia_summary
+
+# Taking user input for question and context
+question = input("Enter your question: ")
+#context = input("Enter the context: ")
+
+# Processing the user input
+wikipedia_summary = processNLP(question)
