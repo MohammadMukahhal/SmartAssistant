@@ -1,6 +1,10 @@
-def fetch_wikipedia_summary(query: str):
+import wikipediaapi
+
+def WikiQuery(query):
+    print("input query: ",query)
+    wiki_wiki = wikipediaapi.Wikipedia('My Project','en')
     page = wiki_wiki.page(query)
     if page.exists():
         return page.summary
     else:
-        return "No Wikipedia page found for this query."
+        return "Page not found."
