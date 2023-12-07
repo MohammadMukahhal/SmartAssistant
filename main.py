@@ -1,7 +1,7 @@
 import streamlit as st
 from support import CleanQuestion
 from NLP import processNLP
-
+from Query_wikipedia import WikiQuery
 
 with st.sidebar:
     #st.markdown("[(https://www.flaticon.com/free-icons/artificial-intelligence)]")
@@ -20,10 +20,11 @@ if prompt := st.chat_input():
     
     #Process the prompt using BERT
     searchQuery = CleanQuestion(prompt)
-    context = "Bill Gates is the richest man in the world"
+    # context = "Bill Gates is the richest man in the world"
+    context = WikiQuery(searchQuery)
+    print(context)
     #Process the prompt using BERT
     response = processNLP(prompt,context)
 
     st.session_state["messages"].append({"role": "assistant", "content": response})
     st.chat_message("assistant").write(response)
-
