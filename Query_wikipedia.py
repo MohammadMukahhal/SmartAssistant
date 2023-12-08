@@ -5,7 +5,7 @@ def WikiQuery(query):
     search_result = wikipedia.search(query)
     print(search_result)
     try:
-        summary = wikipedia.summary(search_result[0], sentences=2, auto_suggest=False, redirect=True)
+        summary = wikipedia.summary(search_result[0], sentences=4, auto_suggest=False, redirect=True)
         print(summary)
         return summary
     except:
