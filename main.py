@@ -5,7 +5,7 @@ from Query_wikipedia import WikiQuery
 
 with st.sidebar:
     #st.markdown("[(https://www.flaticon.com/free-icons/artificial-intelligence)]")
-    st.markdown("Placeholder")
+    st.markdown("Welcome to the smart teaching assistant! This site could answer your questions using the BERT model and wikipedia data!")
 
 st.title("💬 Smart Teaching Assistant") 
 if "messages" not in st.session_state:
@@ -22,6 +22,7 @@ if prompt := st.chat_input():
     searchQuery = CleanQuestion(prompt)
     # context = "Bill Gates is the richest man in the world"
     context = WikiQuery(searchQuery)
+    print("CONTEXT: " + context)
     print(context)
     #Process the prompt using BERT
     response = processNLP(prompt,context)
