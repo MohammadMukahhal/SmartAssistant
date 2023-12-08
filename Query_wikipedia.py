@@ -1,10 +1,12 @@
-import wikipediaapi
+import wikipedia
 
 def WikiQuery(query):
     print("input query: ",query)
-    wiki_wiki = wikipediaapi.Wikipedia('My Project','en')
-    page = wiki_wiki.page(query)
-    if page.exists():
-        return page.summary
-    else:
+    search_result = wikipedia.search(query)
+    print(search_result)
+    try:
+        summary = wikipedia.summary(search_result[0], sentences=2, auto_suggest=False, redirect=True)
+        print(summary)
+        return summary
+    except:
         return "Page not found."
