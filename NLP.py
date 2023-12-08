@@ -3,12 +3,24 @@ from transformers import BertForQuestionAnswering, BertTokenizer
 import warnings
 warnings.simplefilter("ignore")
 
+def trim_context(context:str):
+    #trim the context to 512 tokens
+    max_len = 512
+    if len(context.split()) > max_len:
+        tokens = context.split()
+        new_context = " ".join(tokens[:max_len])
+        return new_context
+    else:
+        return context
+
 def processNLP(question:str, context:str):
 
     model = BertForQuestionAnswering.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
     tokenizer = BertTokenizer.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
+
+    context = trim_context(context)
     
-    input_ids = tokenizer.encode(question, context)
+    input_ids = tokenizer.encode(question, context,max_length=512, truncation=True)
     print("The input has a total of {} tokens.".format(len(input_ids)))
     tokens = tokenizer.convert_ids_to_tokens(input_ids)
         
